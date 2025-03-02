@@ -30,6 +30,7 @@ if [ -z "$should_commit" ] || [[ "$should_commit" =~ ^[Yy] ]]; then
     fi
     
     # Now do the commit
+    git add .
     git commit -m "$message"
     git push
     echo -e "$GREEN Commit successful! $RESET"
