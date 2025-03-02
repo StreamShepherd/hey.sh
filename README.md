@@ -84,7 +84,7 @@ echo "<code>$(cat hey/**/*)</code>" |
 
 # Summarize git changes, copy output into clipboard
 git diff |
-bash $NEWMAN/hey/chat 'summarize git changes as a single line commit message. Wrap in quotes, start with YYMMDD' |
+bash $HEY_BASE/chat 'summarize git changes as a single line commit message. Wrap in quotes, start with YYMMDD' |
 tee /dev/tty |
 tr -d '\n' |
 xsel -ib

@@ -2,6 +2,7 @@
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$DIR/default"
 source "$DIR/models.conf"
+source "$DIR/colors"
 
 # Read piped input
 if [ -t 0 ]; then
