@@ -3,20 +3,15 @@ message="$@"
 timestamp=$(date "+%H%M")
 today=$(date "+%y%m%d")
 
-# Set the HEY_BASE directory
+# Set the HEY_GIT directory
 # @TODO too specific to me, maybe remove?
-if [ -z "$HEY_BASE" ]; then
-    HEY_BASE="$HOME"
-    logfile="$HOME/github/oz/dailies/$today.md"
-else
-    logfile="$HEY_BASE/github/oz/dailies/$today.md"
-fi
+logfile="$HEY_GIT/$today.md"
 
 # If no message autocommit
 if [ -z "$message" ]; then
 	git add .
 	message=$(git status; git diff --staged)
-	message=$(echo "$message" | bash $HEY_BASE/hey/chat "summarize git changes as a single line commit message. Dont wrap in quotes, add markup...just a single line. Start the line with todays date and a space: $today " | tr -d '\n')
+	message=$(echo "$message" | bash $chat "summarize git changes as a single line commit message. Dont wrap in quotes, add markup...just a single line. Do not acknowledge. Just start the line with todays date and a space: $today " | tr -d '\n')
 	echo -e $BGBLUE"$message"$CLEAR
 fi
    

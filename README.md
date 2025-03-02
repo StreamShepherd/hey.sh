@@ -95,3 +95,17 @@ xsel -ib
 
 # Tasks / Todos
 [ ] add note to recursively install submodules eg sim.html
+
+
+# Notes
+
+```sh
+export HEY_BASE="$HOME/github/oz/hey"
+export HEY_GIT="$HOME/github/oz/dailies"
+export HEY_MODEL='google/gemini-2.0-flash-001'
+export API_OPENROUTER='sk-or-v1-'   # openrouter.ai
+alias chat="$HOME/github/oz/hey.sh/chat"
+
+# Other
+export API_GROQ=''                  # groq.com
+```
