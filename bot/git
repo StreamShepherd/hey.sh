@@ -1,0 +1,38 @@
+#!/bin/bash
+message="$@"
+timestamp=$(date "+%H%M")
+today=$(date "+%y%m%d")
+
+# Set the Newman directory
+if [ -z "$NEWMAN" ]; then
+    NEWMAN="$HOME"
+    logfile="$HOME/devlog/$today.md"
+else
+    logfile="$NEWMAN/devlog/$today.md"
+fi
+
+# If no message autocommit
+if [ -z "$message" ]; then
+	git add .
+	message=$(git status; git diff --staged)
+	message=$(echo "$message" | bash $NEWMAN/hey/chat 'summarize git changes as a single line commit message. Dont wrap in quotes, add markup...just a single line' | tr -d '\n')
+	echo -e $BGBLUE"$message"$CLEAR
+fi
+   
+# Log the file
+repo=$(git remote get-url origin | awk -F: '{print $2}')
+if [ -f "$logfile" ]; then
+    echo "$timestamp <$repo> $message" >> "$logfile"
+else
+    echo -e $RED"TODAYS DAILY LOG DOES NOT EXIST YET;\n$GREEN However, COMMIT SUCCESSFUL. $YELLOW MESSAGE ADDED TO $TEAL xsel -ib $YELLOW INSTEAD $RESET"
+    echo "$timestamp <$repo> $message" | xsel -ib
+fi
+
+# Ask if should commit
+echo -e $MAGENTA"Should the message be committed ([Y]es / [n]o / [r]egenerate)?"$CLEAR
+read -r should_commit
+if [ -z "$should_commit" ]; then
+    git commit -m "$message"
+    git push
+    echo -e "$GREEN Commit successful! $RESET"
+fi
