@@ -1,111 +1,198 @@
-# A portable swarm agent framework written in Bash
+# hey.sh - Terminal AI Assistant Framework
 
-This repo has everything you need to design your own agents, swarms, and mixture of experts with minimal code. You can chat with it, pipe in content from other scripts, and redirect the output to the terminal (default) or anywhere else (including itself)
+A lightweight Bash framework for building AI-powered terminal tools and agents. Integrates with your shell for seamless AI assistance in your development workflow.
 
----
+## Prerequisites
 
-# Commands && Flags
-## ./hey [prompt] --flags
-#### Flags and basic usage
+- Bash 4.0+
+- `curl`, `jq`, `xsel` installed
+- API key from [OpenRouter](https://openrouter.ai) or [Groq](https://groq.com)
 
-```bash
-## Flags
---prompt    # (optional) The prompt to use
---system    # (optional) the system prompt to use
---hostname  # [openrouter|groq]
---model     # model ID to use (depends on hostname)
---loop      # enters an interactive chat
---pager     # use a pager for long responses
-```
-
-- If the first argument is a string, it is assumed that argument is the `--prompt`
-- If the first and second arguments are strings, then the second one is assumed to be `--system`
-- If no `--model` flag is passed, it will try to use the most generally accepted state of the art model available
-- If no `--hostname` flag is passed, it is assumed to use [OpenRouter.ai](https://openrouter.ai)
-- All defaults are configurable in `./hey/defaults`
+## Quick Setup
 
 ```bash
-## --model shorthands
---sota     # state of the art available in --hostname
---search   # use a search model, like perplexity
---flash    # use a fast model, like claude haiku
---rolepla  # roleplaying model
---small    # use the smallest available model, like qwen 2.5 250M
+# 1. Clone the repository
+git clone https://github.com/oz/hey.sh
+cd hey.sh
 
-# These are all similar:
-./hey --prompt 'hello how are you' --model 'anthropic/claude-3.5-sonnet' --hostname 'openrouter'
-./hey --sota --prompt 'hello how are you'
-./hey 'hello how are you'
-```
+# 2. Add to your ~/.bashrc
+export API_OPENROUTER='sk-or-v1-...'    # Required: from openrouter.ai
+export API_GROQ=''                      # Optional: from groq.com
 
-### Creating chains
-#### Piping extra context
-```bash
-# Quickly summarize things
-echo "$VARIABLE"
-| chat "what is the value of that variable?"
-
-# Files
-cat file.txt
-| chat "summarize the file"
-
-# Directories
-cat devlog/2411*.md
-| chat "extract tasks that I missed into a new list"
-
-# Summarizing chat sessions
-cat devlog/*
-| ./hey 'start a new life coaching session with summary and question' --loop
-| ./hey 'summarize the session'
->> coaching-notes.txt
-```
-
-
-
----
-
-
-
-# Recipes
-```bash
-# Summarize october
-echo "<aboutme>$(cat oznewman/**/*)</aboutme>
-  <devlog>$(cat devlog/2410*.md)</devlog>" |
-./hey/chat "summarize these notes" --more
-
-# Prioritize todo's
-echo "<aboutme>$(cat oznewman/**/*)</aboutme>
-  <devlog>$(cat devlog/**/*)</devlog>" |
-./hey/chat "extract and prioritize todos" --more
-
-# Improve source code
-echo "<code>$(cat hey/**/*)</code>" |
-./hey/chat "That is your source code, how would you improve it?" --more
-
-# Summarize git changes, copy output into clipboard
-git diff |
-bash $HEY_BASE/chat 'summarize git changes as a single line commit message. Wrap in quotes, start with YYMMDD' |
-tee /dev/tty |
-tr -d '\n' |
-xsel -ib
-```
-
-
----
-
-# Tasks / Todos
-[ ] add note to recursively install submodules eg sim.html
-
-
-# Notes
-
-```sh
 export HEY_BASE="$HOME/github/oz/hey"
-export HEY_GIT="$HOME/github/oz/dailies"
-export HEY_MODEL='google/gemini-2.0-flash-001'
-export API_OPENROUTER='sk-or-v1-'   # openrouter.ai
-alias chat="$HOME/github/oz/hey.sh/chat"
+export HEY_MODEL='anthropic/claude-3-sonnet'
+export HEY_HOSTNAME='openrouter'
 
-# Other
-export API_GROQ=''                  # groq.com
+alias hey="$HEY_BASE/chat"
+
+# 3. Apply changes
+source ~/.bashrc
 ```
+
+## Usage
+
+### Basic Commands
+
+```bash
+# Direct questions
+hey "explain this error"
+
+# Interactive chat
+hey "let's debug" --loop
+
+# With system prompt
+hey "analyze code" "You are a senior developer"
+
+# Using specific model
+hey --model "anthropic/claude-3-sonnet" "explain"
+```
+
+### Command Line Options
+
+```bash
+hey [prompt] [flags]
+
+Flags:
+  --hostname     # API provider (openrouter|groq)
+  --model        # Model ID to use
+  --prompt       # Your question/prompt
+  --system       # System prompt for context
+  --debug        # Enable debug output
+  --more        # Use pager for long responses
+  --loop        # Enable interactive chat mode
+
+Model Shortcuts:
+  --sota        # State of the art model (default)
+  --flash       # Fast response model
+  --search      # Search-optimized model
+  --rp          # Role-playing model
+  --liquid      # Fluid conversation model
+  --code        # Code-optimized model
+```
+
+### Pipeline Integration
+
+```bash
+# Code review
+git diff | hey "review these changes"
+
+# Log analysis
+tail -n 100 error.log | hey "find critical issues"
+
+# Documentation
+cat src/*.js | hey "generate JSDoc" > docs.md
+
+# Multi-step processing
+cat data.log | \
+  hey "extract errors" | \
+  hey "categorize by severity" | \
+  hey "suggest fixes" > report.md
+```
+
+### Shorthand Syntax
+
+```bash
+# These are equivalent:
+hey "analyze this" "You are an expert"
+hey --prompt "analyze this" --system "You are an expert"
+
+# These do the same thing:
+hey "hello" --model anthropic/claude-3-sonnet --hostname openrouter
+hey --sota "hello"
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+HEY_BASE       # Framework installation directory
+HEY_MODEL      # Default AI model to use
+HEY_HOSTNAME   # Default API provider (openrouter|groq)
+```
+
+### Supported Models
+
+OpenRouter:
+- `anthropic/claude-3-sonnet` (default)
+- `google/gemini-pro`
+- `meta/llama-3`
+- `mistral/mixtral-8x7b`
+
+Groq:
+- `claude-3-opus`
+- `mixtral-8x7b`
+- `llama-70b`
+
+### Model Aliases
+
+```bash
+--sota    → Current best model
+--flash   → Fast response model
+--search  → Search-optimized model
+--rp      → Role-playing model
+--liquid  → Conversation model
+--code    → Programming model
+```
+
+## Project Structure
+
+```bash
+hey.sh/
+├── chat           # Main script
+├── default        # Default settings
+├── models.conf    # Model configurations
+└── colors        # Terminal color definitions
+```
+
+## Examples
+
+### Code Assistance
+
+```bash
+# Review changes
+git diff | hey "review changes"
+
+# Generate commit message
+git diff | hey "summarize as commit message" | xsel -ib
+
+# Code improvement suggestions
+cat src/*.js | hey "suggest improvements"
+```
+
+### Documentation
+
+```bash
+# Generate docs
+cat src/*.js | hey "generate JSDoc comments"
+
+# Create README sections
+ls -R | hey "document directory structure"
+```
+
+### System Administration
+
+```bash
+# Analyze logs
+journalctl -n 100 | hey "find errors"
+
+# Security audit
+auth.log | hey "detect suspicious patterns"
+
+# Config review
+cat nginx.conf | hey "review configuration"
+```
+
+## Contributing
+
+1. Fork repository
+2. Create feature branch
+3. Submit pull request
+
+## License
+
+MIT
+
+---
+
+**Security Note:** Keep API keys secure and never commit them to version control.
