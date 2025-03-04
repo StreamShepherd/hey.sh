@@ -23,6 +23,8 @@ if [ -z "$should_commit" ] || [[ "$should_commit" =~ ^[Yy] ]]; then
     # Log the file AFTER confirmation but BEFORE commit
     repo=$(git remote get-url origin | awk -F: '{print $2}')
     if [ -f "$logfile" ]; then
+        echo ""
+        echo ""
         echo "$timestamp <$repo> $message" >> "$logfile"
     else
         echo -e $RED"TODAYS DAILY LOG DOES NOT EXIST YET;\n$GREEN However, COMMIT SUCCESSFUL. $YELLOW MESSAGE ADDED TO $TEAL xsel -ib $YELLOW INSTEAD $RESET"
